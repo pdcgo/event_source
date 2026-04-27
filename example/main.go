@@ -71,7 +71,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc(pushPath, event_source.NewMuxPushhandler(
-		func(ctx context.Context, msg event_source.PushRequest) error {
+		func(ctx context.Context, msg *event_source.PushRequest) error {
 			slog.Info("receive message", "message", msg)
 			return nil
 		},

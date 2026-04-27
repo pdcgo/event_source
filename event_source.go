@@ -57,7 +57,7 @@ func (c MessageAttributeCarrier) Keys() []string {
 	return keys
 }
 
-type PushHandler func(ctx context.Context, msg PushRequest) error
+type PushHandler func(ctx context.Context, msg *PushRequest) error
 type EventSender func(ctx context.Context, event proto.Message) (string, error)
 
 func NewPubsubEventSender(client *pubsub.Client) EventSender {
@@ -124,7 +124,7 @@ func NewMuxPushhandler(handler PushHandler) http.HandlerFunc {
 
 		defer span.End()
 
-		err = handler(ctx, msg)
+		err = handler(ctx, &msg)
 		if err != nil {
 			http.Error(w, "cannot handle event", http.StatusInternalServerError)
 			return
