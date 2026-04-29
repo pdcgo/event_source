@@ -3,8 +3,12 @@ package event_source
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
+	"buf.build/go/protovalidate"
 	"cloud.google.com/go/pubsub/v2"
 	"github.com/pdcgo/schema/services/event_base/v1"
 	"go.opentelemetry.io/otel"
@@ -39,6 +43,14 @@ func NewPubsubEmulator(ctx context.Context, projectID string) (c *pubsub.Client,
 
 }
 
+func NewPubSubDefaultClient() (c *pubsub.Client, err error) {
+	projectID := os.Getenv("GOOGLE_CLOUD_PROJECT")
+	if projectID == "" {
+		return nil, fmt.Errorf("GOOGLE_CLOUD_PROJECT not set")
+	}
+	return pubsub.NewClient(context.Background(), projectID)
+}
+
 type MessageAttributeCarrier map[string]string
 
 func (c MessageAttributeCarrier) Get(key string) string {
@@ -64,6 +76,11 @@ func NewPubsubEventSender(client *pubsub.Client) EventSender {
 
 	return func(ctx context.Context, event proto.Message) (string, error) {
 		var err error
+
+		err = protovalidate.GlobalValidator.Validate(event)
+		if err != nil {
+			return "", err
+		}
 
 		topicName := GetTopicName(event)
 
@@ -126,7 +143,7 @@ func NewMuxPushhandler(handler PushHandler) http.HandlerFunc {
 
 		err = handler(ctx, &msg)
 		if err != nil {
-			http.Error(w, "cannot handle event", http.StatusInternalServerError)
+			http.Error(w, "cannot handle event "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
