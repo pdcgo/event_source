@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 
 	"go.opentelemetry.io/otel"
@@ -45,14 +46,19 @@ func NewMuxPushhandler(handler PushHandler) http.HandlerFunc {
 
 		span.
 			SetAttributes(
-				attribute.String("event.name", r.URL.Path),
+				attribute.String("event.path", r.URL.Path),
+				attribute.String("json_data", string(body)),
 			)
 
 		err = handler(ctx, &msg)
 		if err != nil {
+			slog.Error("push error", slog.Any("message", msg))
 			span.RecordError(err, trace.WithStackTrace(true), trace.WithAttributes(
 				attribute.String("payload", string(body)),
 			))
+			span.SetAttributes(
+				attribute.String("error", err.Error()),
+			)
 			span.SetStatus(codes.Error, err.Error())
 			http.Error(w, "cannot handle event "+err.Error(), http.StatusInternalServerError)
 			return
