@@ -8,6 +8,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -52,6 +53,7 @@ func NewMuxPushhandler(handler PushHandler) http.HandlerFunc {
 			span.RecordError(err, trace.WithStackTrace(true), trace.WithAttributes(
 				attribute.String("payload", string(body)),
 			))
+			span.SetStatus(codes.Error, err.Error())
 			http.Error(w, "cannot handle event "+err.Error(), http.StatusInternalServerError)
 			return
 		}
