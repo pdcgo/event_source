@@ -3,6 +3,7 @@ module github.com/pdcgo/event_source
 go 1.25.0
 
 require (
+	buf.build/go/protovalidate v1.0.1
 	cloud.google.com/go/pubsub/v2 v2.6.0
 	github.com/pdcgo/schema v1.0.117
 	github.com/pdcgo/shared v1.0.131
@@ -15,7 +16,6 @@ require (
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1 // indirect
-	buf.build/go/protovalidate v1.0.1 // indirect
 	cel.dev/expr v0.25.1 // indirect
 	cloud.google.com/go v0.123.0 // indirect
 	cloud.google.com/go/auth v0.18.2 // indirect
