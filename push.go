@@ -52,7 +52,7 @@ func NewMuxPushhandler(handler PushHandler) http.HandlerFunc {
 
 		err = handler(ctx, &msg)
 		if err != nil {
-			slog.Error("push error", slog.Any("message", msg))
+			slog.Error("push error", slog.Any("message", msg), slog.String("err", err.Error()))
 			span.RecordError(err, trace.WithStackTrace(true), trace.WithAttributes(
 				attribute.String("event.payload", string(body)),
 			))
