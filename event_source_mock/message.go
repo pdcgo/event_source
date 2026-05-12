@@ -3,6 +3,7 @@ package event_source_mock
 import (
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/pdcgo/event_source"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -18,7 +19,8 @@ func NewMockEvent(t *testing.T, event proto.Message) *event_source.PushRequest {
 	}
 	return &event_source.PushRequest{
 		Message: event_source.PushMessage{
-			Data: data,
+			Data:      data,
+			MessageID: uuid.New().String(),
 		},
 	}
 }
