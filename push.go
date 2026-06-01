@@ -52,6 +52,8 @@ func NewMuxPushhandler(handler PushHandler) http.HandlerFunc {
 
 		err = handler(ctx, &msg)
 		if err != nil {
+			http.Error(w, "cannot handle event "+err.Error(), http.StatusInternalServerError)
+
 			slog.Error("push error", slog.Any("message", msg), slog.String("err", err.Error()))
 			span.RecordError(err, trace.WithStackTrace(true), trace.WithAttributes(
 				attribute.String("event.payload", string(body)),
@@ -60,7 +62,6 @@ func NewMuxPushhandler(handler PushHandler) http.HandlerFunc {
 				attribute.String("event.error", err.Error()),
 			)
 			span.SetStatus(codes.Error, err.Error())
-			http.Error(w, "cannot handle event "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
